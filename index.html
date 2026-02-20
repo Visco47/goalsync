@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Momentum — Achieve Your Goals</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['DM Sans', 'system-ui', 'sans-serif'],
+            display: ['Outfit', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0efff',
+              200: '#b9dfff',
+              300: '#7cc5ff',
+              400: '#36a8ff',
+              500: '#0c8dff',
+              600: '#006dd4',
+              700: '#0057ab',
+              800: '#004a8d',
+              900: '#003e74',
+            },
+            surface: {
+              50: '#fafafa',
+              100: '#f4f5f7',
+              200: '#e9eaed',
+              300: '#d3d5da',
+              400: '#9ea2ab',
+              500: '#6b7280',
+              600: '#4b5563',
+              700: '#374151',
+              800: '#1f2937',
+              900: '#111827',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', system-ui, sans-serif; background: #f4f5f7; color: #111827; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .nav-item.active { color: #0c8dff; }
+    .nav-item.active .nav-dot { background: #0c8dff; }
+    .streak-ring { 
+      background: conic-gradient(#0c8dff var(--progress), #e9eaed var(--progress));
+      border-radius: 50%;
+    }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .slide-up { animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 0 0 2px #0c8dff33; border-color: #0c8dff; }
+    .checkbox-custom:checked { background: #0c8dff; border-color: #0c8dff; }
+    .checkbox-custom:checked::after { content: '✓'; color: white; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+    .modal-overlay { background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); }
+    .progress-bar { transition: width 0.6s ease; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d3d5da; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ea2ab; }
+    .goal-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    .goal-card { transition: all 0.2s ease; }
+    .person-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .person-card { transition: all 0.2s ease; }
+  </style>
+</head>
+<body class="min-h-screen bg-surface-100">
+
+  <!-- Top Header -->
+  <header class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-b border-surface-200 z-50">
+    <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-brand-500 rounded-xl flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+        <span class="font-display font-bold text-lg tracking-tight">Momentum</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="notifBtn" class="relative w-9 h-9 rounded-xl bg-surface-100 flex items-center justify-center hover:bg-surface-200 transition-colors">
+          <svg class="w-[18px] h-[18px] text-surface-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">0</span>
+        </button>
+        <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center">
+          <span class="text-brand-700 text-sm font-semibold" id="userAvatar">U</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="pt-14 pb-20 max-w-2xl mx-auto px-4">
+
+    <!-- Dashboard Page -->
+    <div id="pageDashboard" class="page active">
+      <div class="py-6 fade-in">
+        <!-- Greeting -->
+        <div class="mb-6">
+          <h1 class="font-display text-2xl font-bold text-surface-900" id="greeting">Good morning</h1>
+          <p class="text-surface-500 mt-1 text-sm">Here's your progress today</p>
+        </div>
+
+        <!-- Streak Card -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-surface-200 mb-4 slide-up">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-xs font-medium text-surface-400 uppercase tracking-wider">Current Streak</p>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span class="font-display text-4xl font-bold text-surface-900" id="streakCount">0</span>
+                <span class="text-surface-400 text-sm font-medium">days</span>
+              </div>
+            </div>
+            <div class="streak-ring w-16 h-16 flex items-center justify-center" id="streakRing" style="--progress: 0%">
+              <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                <span class="text-lg">🔥</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-1" id="streakDots"></div>
+          <p class="text-xs text-surface-400 mt-3" id="streakMessage">Complete today's tasks to keep your streak!</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-3 gap-3 mb-4 slide-up" style="animation-delay: 0.1s">
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-surface-200 text-center">
+            <p class="font-display text-2xl font-bold text-surface-900" id="statGoals">0</p>
+            <p class="text-xs text-surface-400 mt-0.5">Active Goals</p>
+          </div>
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-surface-200 text-center">
+            <p class="font-display text-2xl font-bold text-brand-500" id="statCompleted">0</p>
+            <p class="text-xs text-surface-400 mt-0.5">Completed</p>
+          </div>
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-surface-200 text-center">
+            <p class="font-display text-2xl font-bold text-emerald-500" id="statReminders">0</p>
+            <p class="text-xs text-surface-400 mt-0.5">Reminders</p>
+          </div>
+        </div>
+
+        <!-- Today's Tasks -->
+        <div class="bg-white rounded-2xl shadow-sm border border-surface-200 overflow-hidden slide-up" style="animation-delay: 0.15s">
+          <div class="p-4 pb-3 flex items-center justify-between border-b border-surface-100">
+            <h2 class="font-display font-semibold text-surface-900">Today's Tasks</h2>
+            <button onclick="App.showAddTask()" class="text-brand-500 hover:text-brand-600 text-sm font-medium transition-colors flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Add
+            </button>
+          </div>
+          <div id="todayTasks" class="divide-y divide-surface-100">
+            <div class="p-8 text-center">
+              <div class="w-12 h-12 rounded-full bg-surface-100 flex items-center justify-center mx-auto mb-3">
+                <svg class="w-5 h-5 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              </div>
+              <p class="text-surface-400 text-sm">No tasks yet. Add one to get started!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motivational Quote -->
+        <div class="mt-4 bg-gradient-to-br from-brand-50 to-blue-50 rounded-2xl p-5 border border-brand-100 slide-up" style="animation-delay: 0.2s">
+          <p class="text-surface-700 text-sm italic leading-relaxed" id="quoteText">"The secret of getting ahead is getting started."</p>
+          <p class="text-surface-400 text-xs mt-2" id="quoteAuthor">— Mark Twain</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goals Page -->
+    <div id="pageGoals" class="page">
+      <div class="py-6 fade-in">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h1 class="font-display text-2xl font-bold text-surface-900">Goals</h1>
+            <p class="text-surface-500 mt-0.5 text-sm">Track your progress toward what matters</p>
+          </div>
+          <button onclick="App.showAddGoal()" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            New Goal
+          </button>
+        </div>
+
+        <!-- Goal Filters -->
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-1">
+          <button onclick="App.filterGoals('all')" class="goal-filter active whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-900 text-white transition-colors" data-filter="all">All</button>
+          <button onclick="App.filterGoals('active')" class="goal-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="active">Active</button>
+          <button onclick="App.filterGoals('completed')" class="goal-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="completed">Completed</button>
+          <button onclick="App.filterGoals('health')" class="goal-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="health">Health</button>
+          <button onclick="App.filterGoals('career')" class="goal-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="career">Career</button>
+          <button onclick="App.filterGoals('learning')" class="goal-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="learning">Learning</button>
+          <button onclick="App.filterGoals('personal')" class="goal-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="personal">Personal</button>
+        </div>
+
+        <div id="goalsList" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Community Page -->
+    <div id="pageCommunity" class="page">
+      <div class="py-6 fade-in">
+        <div class="mb-5">
+          <h1 class="font-display text-2xl font-bold text-surface-900">Community</h1>
+          <p class="text-surface-500 mt-0.5 text-sm">Find people with similar goals</p>
+        </div>
+
+        <!-- Search -->
+        <div class="relative mb-4">
+          <svg class="w-4 h-4 text-surface-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="communitySearch" placeholder="Search by goal or interest..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-surface-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-100" oninput="App.searchCommunity(this.value)">
+        </div>
+
+        <!-- Goal Match Filters -->
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-1">
+          <button onclick="App.filterCommunity('all')" class="community-filter active whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-900 text-white transition-colors" data-filter="all">All People</button>
+          <button onclick="App.filterCommunity('health')" class="community-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="health">Health</button>
+          <button onclick="App.filterCommunity('career')" class="community-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="career">Career</button>
+          <button onclick="App.filterCommunity('learning')" class="community-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="learning">Learning</button>
+          <button onclick="App.filterCommunity('personal')" class="community-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="personal">Personal</button>
+          <button onclick="App.filterCommunity('fitness')" class="community-filter whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-500 hover:bg-surface-200 transition-colors" data-filter="fitness">Fitness</button>
+        </div>
+
+        <div id="communityList" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Reminders Page -->
+    <div id="pageReminders" class="page">
+      <div class="py-6 fade-in">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h1 class="font-display text-2xl font-bold text-surface-900">Reminders</h1>
+            <p class="text-surface-500 mt-0.5 text-sm">Never miss what matters</p>
+          </div>
+          <button onclick="App.showAddReminder()" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            New
+          </button>
+        </div>
+
+        <!-- Upcoming -->
+        <div class="mb-6">
+          <h3 class="text-xs font-medium text-surface-400 uppercase tracking-wider mb-3">Upcoming</h3>
+          <div id="upcomingReminders" class="space-y-2"></div>
+        </div>
+
+        <!-- Completed -->
+        <div>
+          <h3 class="text-xs font-medium text-surface-400 uppercase tracking-wider mb-3">Past</h3>
+          <div id="pastReminders" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-surface-200 z-50">
+    <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-around">
+      <button onclick="App.navigate('Dashboard')" class="nav-item active flex flex-col items-center gap-1 px-4 py-1 transition-colors" data-page="Dashboard">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span class="text-[10px] font-medium">Home</span>
+        <div class="nav-dot w-1 h-1 rounded-full bg-brand-500"></div>
+      </button>
+      <button onclick="App.navigate('Goals')" class="nav-item flex flex-col items-center gap-1 px-4 py-1 text-surface-400 transition-colors" data-page="Goals">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span class="text-[10px] font-medium">Goals</span>
+        <div class="nav-dot w-1 h-1 rounded-full bg-transparent"></div>
+      </button>
+      <button onclick="App.navigate('Community')" class="nav-item flex flex-col items-center gap-1 px-4 py-1 text-surface-400 transition-colors" data-page="Community">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span class="text-[10px] font-medium">Community</span>
+        <div class="nav-dot w-1 h-1 rounded-full bg-transparent"></div>
+      </button>
+      <button onclick="App.navigate('Reminders')" class="nav-item flex flex-col items-center gap-1 px-4 py-1 text-surface-400 transition-colors" data-page="Reminders">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-[10px] font-medium">Reminders</span>
+        <div class="nav-dot w-1 h-1 rounded-full bg-transparent"></div>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Modal Overlay -->
+  <div id="modalOverlay" class="fixed inset-0 modal-overlay z-[60] hidden items-center justify-center p-4">
+    <div id="modalContent" class="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] overflow-y-auto slide-up"></div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-surface-900 text-white px-5 py-3 rounded-xl shadow-lg z-[70] hidden items-center gap-2 text-sm font-medium">
+    <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="toastMessage"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
